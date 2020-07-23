@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     var questions = [Question]()
     var quesNumber = 0
     var answers = [Int]()
+    var mutiAnsSelection = [Int]()
     let sleepTime = 0.5
     
     var correctAnswers = 0
@@ -47,13 +48,13 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateOptionsUI()
+//        updateOptionsUI()
         startTimer()
         
-        questions.append(Question(ques: "Question 1", options: ["1", "2", "3", "4"], answers: [0,1]))
-        questions.append(Question(ques: "Question 2", options: ["5", "6", "7", "8"], answers: [0]))
-        questions.append(Question(ques: "Question 3", options: ["9", "10", "11", "12"], answers: [3]))
-        questions.append(Question(ques: "Question 4", options: ["13", "14", "15", "16"], answers: [2]))
+        questions.append(Question(ques: "Question 1", options: ["results.subTitleLabel.text = correctAnswers initialQuestionsCount results.subTitleLabel.text = correctAnswers) out of initialQuestionsCount results.subTitleLabel.text = correctAnswers results.subTitleLabel.text = correctAnswers results.subTitleLabel.text = correctAnswers", "2", "3", "4"], answers: [0,1]))
+        questions.append(Question(ques: "Question 2", options: ["5", "6", "7", "8"], answers: [2,3]))
+        questions.append(Question(ques: "Question 3", options: ["9", "10", "11", "12"], answers: [1,2]))
+        questions.append(Question(ques: "Question 4", options: ["13", "14", "15", "16"], answers: [0,3]))
         
         initialQuestionsCount = questions.count
         pickQuestion()
@@ -61,15 +62,18 @@ class ViewController: UIViewController {
     
     func updateOptionsUI() {
         for i in 0..<answerButtons.count {
+            answerButtons[i].titleLabel?.numberOfLines = 0
+            answerButtons[i].titleLabel?.adjustsFontSizeToFitWidth = true
+            answerButtons[i].titleLabel?.lineBreakMode = .byCharWrapping
             answerButtons[i].layer.borderColor = UIColor.black.cgColor
-            answerButtons[i].layer.borderWidth = 2.0
+            answerButtons[i].layer.borderWidth = 1.0
             answerButtons[i].layer.cornerRadius = 4.0
             answerButtons[i].layer.backgroundColor = UIColor.white.cgColor
         }
     }
     
     func pickQuestion() {
-        
+        mutiAnsSelection = [Int]()
         if questions.count > 0 {
             quesNumber = 0
             questionLabel.text = questions[quesNumber].ques
@@ -110,8 +114,11 @@ class ViewController: UIViewController {
     
     func highlightCorrectAnswers(ans: [Int]) {
         if(ans.count > 1){
-            print("Multi selection answers: \(ans.containsSameElements(as: mutiAnsSelection))")
-            correctAnswers += 1
+            let result = ans.containsSameElements(as: mutiAnsSelection)
+            print("Multi selection answers: \(result))")
+            if result {
+                correctAnswers += 1
+            }
         }
         for i in ans {
             answerButtons[i].layer.borderColor = UIColor.green.cgColor
@@ -128,8 +135,6 @@ class ViewController: UIViewController {
         answerButtons[option].layer.backgroundColor = UIColor.darkGray.cgColor
     }
     
-    var mutiAnsSelection = [Int]()
-    
     @IBAction func option1(_ sender: Any) {
         highlightSelectedAnswers(option: 0)
         if (answers.count > 1) {
@@ -142,11 +147,14 @@ class ViewController: UIViewController {
                         self.pickQuestion()
                      }
                 }
+            } else if (mutiAnsSelection.count >= answers.count) {
+                highlightCorrectAnswers(ans: answers)
+                DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
+                   self.pickQuestion()
+                }
             }
         } else {
             if answers[0] == 0 {
-//                highlightSelectedAnswers(option: 0)
-                
                 correctAnswers += 1
                 highlightCorrectAnswers(ans: answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
@@ -161,7 +169,6 @@ class ViewController: UIViewController {
                 answerButtons[0].layer.backgroundColor = UIColor.red.cgColor
                 highlightCorrectAnswers(ans: self.answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             }
@@ -180,20 +187,17 @@ class ViewController: UIViewController {
                         self.pickQuestion()
                      }
                 }
+            } else if (mutiAnsSelection.count >= answers.count) {
+                highlightCorrectAnswers(ans: answers)
+                DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
+                   self.pickQuestion()
+                }
             }
         } else {
             if answers[0] == 1 {
-                /*
-                answerButtons[1].layer.borderColor = UIColor.green.cgColor
-                answerButtons[1].layer.borderWidth = 2.0
-                answerButtons[1].layer.cornerRadius = 4.0
-                answerButtons[1].layer.backgroundColor = UIColor.green.cgColor
-                */
-//                highlightSelectedAnswers(option: 1)
                 correctAnswers += 1
                 highlightCorrectAnswers(ans: answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             } else {
@@ -204,7 +208,6 @@ class ViewController: UIViewController {
                 answerButtons[1].layer.backgroundColor = UIColor.red.cgColor
                 highlightCorrectAnswers(ans: self.answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             }
@@ -223,15 +226,17 @@ class ViewController: UIViewController {
                         self.pickQuestion()
                      }
                 }
+            } else if (mutiAnsSelection.count >= answers.count) {
+                highlightCorrectAnswers(ans: answers)
+                DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
+                   self.pickQuestion()
+                }
             }
         } else {
             if answers[0] == 2 {
-//                 highlightSelectedAnswers(option: 2)
-                
                 correctAnswers += 1
                 highlightCorrectAnswers(ans: answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             } else {
@@ -242,8 +247,6 @@ class ViewController: UIViewController {
                 answerButtons[2].layer.backgroundColor = UIColor.red.cgColor
                 highlightCorrectAnswers(ans: self.answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             }
@@ -263,15 +266,17 @@ class ViewController: UIViewController {
                         self.pickQuestion()
                      }
                 }
+            } else if (mutiAnsSelection.count >= answers.count) {
+                highlightCorrectAnswers(ans: answers)
+                DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
+                   self.pickQuestion()
+                }
             }
         } else {
             if answers[0] == 3 {
-//                highlightSelectedAnswers(option: 3)
-                
                 correctAnswers += 1
                 highlightCorrectAnswers(ans: answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             } else {
@@ -282,7 +287,6 @@ class ViewController: UIViewController {
                 answerButtons[3].layer.backgroundColor = UIColor.red.cgColor
                 highlightCorrectAnswers(ans: self.answers)
                 DispatchQueue.main.asyncAfter(deadline: .now() + sleepTime) {
-                    //                self.updateOptionsUI()
                     self.pickQuestion()
                 }
             }
@@ -315,14 +319,11 @@ class ViewController: UIViewController {
     
 }
 
-struct Question {
-    var ques : String!
-    var options: [String]!
-    var answers: [Int]!
-}
 
 extension Array where Element: Comparable {
     func containsSameElements(as other: [Element]) -> Bool {
         return self.count == other.count && self.sorted() == other.sorted()
     }
 }
+
+
