@@ -49,15 +49,46 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 //        updateOptionsUI()
+        fetchData()
         startTimer()
-        
+        /*
         questions.append(Question(ques: "Question 1", options: ["results.subTitleLabel.text = correctAnswers initialQuestionsCount results.subTitleLabel.text = correctAnswers) out of initialQuestionsCount results.subTitleLabel.text = correctAnswers results.subTitleLabel.text = correctAnswers results.subTitleLabel.text = correctAnswers", "2", "3", "4"], answers: [0,1]))
         questions.append(Question(ques: "Question 2", options: ["5", "6", "7", "8"], answers: [2,3]))
         questions.append(Question(ques: "Question 3", options: ["9", "10", "11", "12"], answers: [1,2]))
         questions.append(Question(ques: "Question 4", options: ["13", "14", "15", "16"], answers: [0,3]))
-        
+        */
         initialQuestionsCount = questions.count
         pickQuestion()
+    }
+    
+    func fetchData() {
+        let semaphore = DispatchSemaphore (value: 0)
+        var request = URLRequest(url: URL(string: Constants.fetchAPI)!,timeoutInterval: Double.infinity)
+        request.httpMethod = "GET"
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+          guard let data = data else {
+            print(String(describing: error))
+            return
+          }
+            let questionsAry = try? JSONDecoder().decode(Data.self, from: data)
+            if (questionsAry?.results?.count ?? 0 > 0) {
+                var qNum = 1
+                for i in questionsAry!.results! {
+                    let que = i.question
+                    let ans = i.correct_answer
+                    var options = i.incorrect_answers
+                    let randomInt = Int.random(in: 0..<4)
+                    options?.insert(ans ?? "", at: randomInt)
+                    print("Answers for question \(qNum) : \(randomInt)")
+                    self.questions.append(Question(ques: que, options: options, answers: [randomInt]))
+                    qNum += 1
+                }
+            }
+            
+          semaphore.signal()
+        }
+        task.resume()
+        semaphore.wait()
     }
     
     func updateOptionsUI() {
@@ -103,17 +134,19 @@ class ViewController: UIViewController {
         updateOptionsUI()
         startTimer()
         
+        fetchData()
+        /*
         questions.append(Question(ques: "Question 5", options: ["1", "2", "3", "4"], answers: [1]))
         questions.append(Question(ques: "Question 6", options: ["5", "6", "7", "8"], answers: [0]))
         questions.append(Question(ques: "Question 7", options: ["9", "10", "11", "12"], answers: [3]))
         questions.append(Question(ques: "Question 8", options: ["13", "14", "15", "16"], answers: [2]))
-        
+        */
         initialQuestionsCount = questions.count
         pickQuestion()
     }
     
     func highlightCorrectAnswers(ans: [Int]) {
-        if(ans.count > 1){
+        if(ans.count > 1) {
             let result = ans.containsSameElements(as: mutiAnsSelection)
             print("Multi selection answers: \(result))")
             if result {
@@ -251,7 +284,6 @@ class ViewController: UIViewController {
                 }
             }
         }
-        
     }
     
     @IBAction func option4(_ sender: Any) {
